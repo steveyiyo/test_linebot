@@ -13,7 +13,7 @@ from linebot.v3.messaging import (
     ApiClient,
     MessagingApi,
     ReplyMessageRequest,
-    TextMessage
+    StickerMessage
 )
 from linebot.v3.webhooks import (
     MessageEvent,
@@ -53,7 +53,7 @@ def handle_message(event):
         line_bot_api.reply_message_with_http_info(
             ReplyMessageRequest(
                 reply_token=event.reply_token,
-                messages=[TextMessage(text=event.message.text)]
+                messages=[StickerMessage(package_id="6362", sticker_id="11087925")]
             )
         )
 
