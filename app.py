@@ -13,14 +13,14 @@ from linebot.v3.messaging import (
     ApiClient,
     MessagingApi,
     ReplyMessageRequest,
-    StickerMessage
+    TextMessage
 )
 from linebot.v3.webhooks import (
     MessageEvent,
     TextMessageContent
 )
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='static')
 load_dotenv()
 
 configuration = Configuration(access_token=os.environ.get('LINE_CHANNEL_ACCESS_TOKEN'))
@@ -53,7 +53,7 @@ def handle_message(event):
         line_bot_api.reply_message_with_http_info(
             ReplyMessageRequest(
                 reply_token=event.reply_token,
-                messages=[StickerMessage(package_id="6362", sticker_id="11087925")]
+                messages=[TextMessage(text=event.message.text[::-1])]
             )
         )
 
