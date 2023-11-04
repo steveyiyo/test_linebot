@@ -3,3 +3,4 @@ venv
 .env
 static/card/*
 static/avatar/*
+static/item/*

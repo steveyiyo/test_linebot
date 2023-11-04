@@ -12,16 +12,58 @@
 <body>
 
 <div>
-    <button
-        type="button"
-         id="qr"
-        class="rounded-md bg-indigo-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-      >
-        掃描顧客 QR
-      </button>
+    <a
+            class="rounded-md bg-indigo-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+            href="/admin/items">商品管理</a>
+
+    <div class="border-b border-gray-200 bg-white px-4 py-5 sm:px-6">
+        <h3 class="text-base font-semibold leading-6 text-gray-900">訂單管理</h3>
+
+        <div class="flex">
+            <div class="item_container">
+                <select onchange="render()"
+                        class="item relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 sm:text-sm sm:leading-6"></select>
+                <select onchange="render()" class="price">
+                    <option>1</option>
+                    <option>2</option>
+                    <option>3</option>
+                    <option>4</option>
+                    <option>5</option>
+                    <option>6</option>
+                    <option>7</option>
+                    <option>8</option>
+                    <option>9</option>
+                    <option>10</option>
+                </select>
+            </div>
+        </div>
+
+
+        <button
+                type="button"
+                id="qr"
+                class="rounded-md bg-indigo-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+        >
+            掃描顧客 QR
+        </button>
+
+        <div class="border rounded-lg p-2 my-2">
+            <span>ID: <span id="userId"></span></span>
+            <div class="flex flex-col">
+                <span>品項明細</span>
+                <ul id="detail">
+
+                </ul>
+            </div>
+        </div>
+    </div>
+
 </div>
 
 <script>
+    let userId = null;
+    let items = []
+    let preItems = []
     document.addEventListener("DOMContentLoaded", () => {
         liff.init({liffId: "2001486622-zXegw9Z4"}).then(() => {
             if (liff.isLoggedIn()) {
@@ -30,14 +72,48 @@
                 liff.login();
             }
         });
+
+        fetch("/api/admin/items").then(res => res.json()).then((items, i) => {
+            preItems = items;
+            render()
+        })
     })
 
     document.querySelector("#qr").addEventListener("click", function () {
-        liff.scanCodeV2().then(result => {
-            const stringifiedResult = JSON.stringify(result);
-            alert(stringifiedResult);
+        liff.scanCodeV2().then(({value}) => {
+            userId = value;
+            render()
         });
     });
+
+    function render() {
+        document.querySelector('#detail').innerHTML = '';
+
+        document.querySelectorAll('.item').innerHTML = '';
+        preItems.forEach(item => {
+            let option = `<option value="${item.name}">${item.name}</option>`
+            document.querySelectorAll('.item').forEach(item => {
+                item.innerHTML += option;
+            })
+        })
+
+        document.querySelectorAll('.item_container').forEach((item_container) => {
+            let item = item_container.querySelector('.item').value;
+            let price = item_container.querySelector('.price').value;
+            items.push({name: item, price: price})
+        })
+
+        items.forEach(item => {
+            let li = `
+                    <li class="flex justify-between items-center">
+                        <span>${item.name}</span>
+                        <span>${item.price}</span>
+                    </li>`
+            document.getElementById("detail").innerHTML += li;
+        })
+        document.getElementById("userId").innerText = userId;
+
+    }
 </script>
 
 </body>

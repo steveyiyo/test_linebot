@@ -1,3 +1,4 @@
+import json
 import os
 
 import qrcode
@@ -8,7 +9,7 @@ from uuid import uuid4
 from barcode import EAN13, Code128
 from barcode.writer import ImageWriter  # 載入 barcode.writer 的 ImageWriter
 
-from flask import Flask, request, abort, render_template
+from flask import Flask, request, abort, render_template, jsonify, redirect
 from dotenv import load_dotenv
 from linebot.v3 import (
     WebhookHandler
@@ -149,6 +150,56 @@ def gen_member_card(name, uid):
     img.save(f"static/card/{uid}.png")
 
 
+@app.get('/api/admin/items')
+def item_api_index():
+    if not os.path.exists("static/item.json"):
+        with open("static/item.json", "w") as f:
+            f.write("[]")
+
+    items = json.load(open("static/item.json"))
+    return jsonify(items)
+
+
+@app.post('/admin/items')
+def item_create():
+    if not os.path.exists("static/item.json"):
+        with open("static/item.json", "w") as f:
+            f.write("[]")
+
+    items = json.load(open("static/item.json"))
+    item_id = str(uuid4())
+
+    request.files["image"].save(f"static/item/{item_id}.png")
+
+    items.append({
+        "id": item_id,
+        "name": request.form["name"],
+        "image": f"https://sloth-robust-remarkably.ngrok-free.app/static/item/{item_id}.png",
+        "price": request.form["price"],
+    })
+
+    with open("static/item.json", "w") as f:
+        json.dump(items, f)
+
+    return redirect("https://sloth-robust-remarkably.ngrok-free.app/admin/items")
+
+
+@app.post('/order')
+def order_create():
+    if not os.path.exists("static/order.json"):
+        with open("static/order.json", "w") as f:
+            f.write("[]")
+
+    orders = json.load(open("static/order.json"))
+
+    order_id = str(uuid4())
+    orders.append({
+        "id": order_id,
+        "items": request.json["items"],
+        "total": request.json["total"],
+    })
+
+
 @app.get('/')
 def index():
     return render_template('index.html')
@@ -157,6 +208,11 @@ def index():
 @app.get('/admin')
 def admin():
     return render_template('admin.html')
+
+
+@app.get('/admin/items')
+def item_index():
+    return render_template('manage/items.html')
 
 
 if __name__ == "__main__":
