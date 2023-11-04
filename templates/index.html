@@ -1,0 +1,44 @@
+<html>
+
+<head>
+    <title>LIFF Restaurant</title>
+    <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/versions/2.22.4/sdk.js"></script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body>
+
+<div>
+    <button
+        type="button"
+         id="qr"
+        class="rounded-md bg-indigo-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+      >
+        QR
+      </button>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        liff.init({liffId: "2001486622-g5oK1pGe"}).then(() => {
+            if (liff.isLoggedIn()) {
+                console.log("LIFF is logged in");
+            } else {
+                liff.login();
+            }
+        });
+    })
+
+    document.querySelector("#qr").addEventListener("click", function () {
+        liff.scanCodeV2().then(result => {
+            const stringifiedResult = JSON.stringify(result);
+            alert(stringifiedResult);
+        });
+    });
+</script>
+
+</body>
+</html>

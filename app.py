@@ -8,7 +8,7 @@ from uuid import uuid4
 from barcode import EAN13, Code128
 from barcode.writer import ImageWriter  # 載入 barcode.writer 的 ImageWriter
 
-from flask import Flask, request, abort
+from flask import Flask, request, abort, render_template
 from dotenv import load_dotenv
 from linebot.v3 import (
     WebhookHandler
@@ -59,10 +59,6 @@ def handle_message(event):
     with ApiClient(configuration) as api_client:
         line_bot_api = MessagingApi(api_client)
 
-        name = "王小明"
-        uid = "U1234567890"
-        gen_member_card(name, uid)
-
         line_bot_api.reply_message_with_http_info(
             ReplyMessageRequest(
                 reply_token=event.reply_token,
@@ -74,6 +70,7 @@ def handle_message(event):
                             actions=[
                                 PostbackAction(
                                     label='會員卡',
+                                    displayText='顯示會員卡',
                                     data='action=member_card'
                                 ),
                             ]
@@ -89,6 +86,7 @@ def handle_postback(event):
     with ApiClient(configuration) as api_client:
         line_bot_api = MessagingApi(api_client)
         if event.postback.data == 'action=member_card':
+            print(event.source)
             name = "王小明"
             uid = event.source.user_id
             gen_member_card(name, uid)
@@ -98,12 +96,12 @@ def handle_postback(event):
                     reply_token=event.reply_token,
                     messages=[
                         ImageMessage(
-                            original_content_url=f"https://sloth-robust-remarkably.ngrok-free.app/static/temp/{uid}.png",
-                            preview_image_url=f"https://sloth-robust-remarkably.ngrok-free.app/static/temp/{uid}.png"
+                            original_content_url=f"https://sloth-robust-remarkably.ngrok-free.app/static/card/{uid}.png",
+                            preview_image_url=f"https://sloth-robust-remarkably.ngrok-free.app/static/card/{uid}.png"
                         ),
                         ImageMessage(
-                            original_content_url=f"https://sloth-robust-remarkably.ngrok-free.app/static/temp/{uid}_qr.png",
-                            preview_image_url=f"https://sloth-robust-remarkably.ngrok-free.app/static/temp/{uid}_qr.png"
+                            original_content_url=f"https://sloth-robust-remarkably.ngrok-free.app/static/card/{uid}_qr.png",
+                            preview_image_url=f"https://sloth-robust-remarkably.ngrok-free.app/static/card/{uid}_qr.png"
                         )
                     ]
                 )
@@ -149,6 +147,16 @@ def gen_member_card(name, uid):
 
     # Save the edited image
     img.save(f"static/card/{uid}.png")
+
+
+@app.get('/')
+def index():
+    return render_template('index.html')
+
+
+@app.get('/admin')
+def admin():
+    return render_template('admin.html')
 
 
 if __name__ == "__main__":
