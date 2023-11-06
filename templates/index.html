@@ -43,7 +43,7 @@
             if (liff.isLoggedIn()) {
                 console.log("LIFF is logged in");
                 liff.getProfile().then(user => {
-                    document.getElementById("card").src = "/static/card/" + user.userId + ".png";
+                    document.getElementById("card").src = "/static/card/" + user.userId + ".png?v=" + new Date().getTime();
                     document.getElementById("qr").src = "/static/card/" + user.userId + "_qr.png";
                     document.getElementById("barcode").src = "/static/card/" + user.userId + "_barcode.png";
                 })
