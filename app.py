@@ -127,9 +127,9 @@ def gen_member_card(name, uid):
     barcode = Code128(uid[1:].zfill(12), writer=ImageWriter())
     barcode.save(f"static/card/{uid}_barcode")
 
-    avatar_path = f"static/avatar/{uid}"
+    avatar_path = f"static/avatar/{uid}.jpeg"
     if os.path.exists(avatar_path):
-        avatar = Image.open(f"static/avatar/{uid}", formats=["png", "jpeg"])
+        avatar = Image.open(f"static/avatar/{uid}.jpeg", formats=["png", "jpeg"])
     else:
         avatar = Image.open("static/avatar/default.png")
     base_width = 800
@@ -296,7 +296,7 @@ def upload_avatar():
     print(user_info)
     userId = user_info["sub"]
 
-    request.files["avatar"].save(f"static/avatar/{userId}")
+    request.files["avatar"].save(f"static/avatar/{userId}.jpeg")
 
     return redirect("https://test-linebot.hsuan.app/")
 
