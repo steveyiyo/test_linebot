@@ -77,7 +77,7 @@ def main():
                         height=843
                     ),
                     action=URIAction(
-                        uri="https://liff.line.me/2001486622-zXegw9Z4"
+                        uri="https://liff.line.me/2001486622-5ZB1OzmV"
                     )
                 )
             ]

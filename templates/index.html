@@ -30,6 +30,11 @@
 
         </ul>
     </div>
+
+    <a href="/profile"
+       class="rounded-t-md bg-indigo-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+        編輯個人資料
+    </a>
 </div>
 
 <script>
@@ -46,8 +51,8 @@
                     headers: {
                         'Authorization': 'Bearer ' + liff.getIDToken()
                     }
-                }).then(res=>res.json()).then(points=>{
-                    document.getElementById('points').innerHTML = points.map(x=>`
+                }).then(res => res.json()).then(points => {
+                    document.getElementById('points').innerHTML = points.map(x => `
                         <li class="flex flex-col justify-between w-full border rounded-xl p-2">
                             <span class="flex justify-between items-center">
                                 <span>${new Date(x.created_at).toLocaleDateString()}</span>

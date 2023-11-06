@@ -162,6 +162,10 @@ def item_api_index():
     items = json.load(open("static/item.json"))
     return jsonify(items)
 
+@app.get('/profile')
+def profile():
+    return render_template('profile.html')
+
 
 @app.post('/api/admin/orders')
 def order_api_create():
