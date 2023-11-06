@@ -162,6 +162,7 @@ def item_api_index():
     items = json.load(open("static/item.json"))
     return jsonify(items)
 
+
 @app.get('/profile')
 def profile():
     return render_template('profile.html')
@@ -276,6 +277,26 @@ def point_index():
     points = list(filter(lambda x: x["user_id"] == userId, points))
 
     return jsonify(points)
+
+
+@app.post('/profile/avatar')
+def upload_avatar():
+    if not os.path.exists("static/avatar"):
+        os.makedirs("static/avatar")
+
+    userId = request.form.get('token')
+    user_info = requests.post("https://api.line.me/oauth2/v2.1/verify", data={
+        "id_token": userId,
+        "client_id": os.environ.get("LINE_CHANNEL_ID"),
+    }).json()
+    print(user_info)
+    userId = user_info["sub"]
+
+    request.files["image"].save(f"static/avatar/{userId}")
+
+    return jsonify({
+        "status": "success"
+    })
 
 
 @app.get('/')

@@ -15,12 +15,12 @@
     <div class="w-full px-4">
         <img id="avatar_img" class="w-full rounded-xl shadow-2xl"/>
     </div>
-    <div>
-        <form action="/profile/avatar">
+    <div class="my-4">
+        <form action="/profile/avatar" method="post" enctype="multipart/form-data">
             <label for="avatar"
                    class="w-full flex justify-center items-center bg-orange-400 text-white rounded-xl shadow-2xl cursor-pointer">
                 <span class="text-2xl">更換頭像</span>
-                <input id="avatar" type="file" class="hidden" accept="image/*" onchange="uploadAvatar(this.files[0])"/>
+                <input id="avatar" type="file" class="hidden" accept="image/*"/>
             </label>
             <input type="hidden" id="token"/>
         </form>
@@ -33,7 +33,7 @@
             if (liff.isLoggedIn()) {
                 console.log("LIFF is logged in");
                 liff.getProfile().then(user => {
-                    document.getElementById("avatar_img").src = "/static/avatar/" + user.userId + ".png";
+                    document.getElementById("avatar_img").src = "/static/avatar/" + user.userId;
                 })
                 document.getElementById("token").value = liff.getIDToken();
             } else {
