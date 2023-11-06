@@ -100,12 +100,12 @@ def handle_postback(event):
                     reply_token=event.reply_token,
                     messages=[
                         ImageMessage(
-                            original_content_url=f"https://sloth-robust-remarkably.ngrok-free.app/static/card/{uid}.png",
-                            preview_image_url=f"https://sloth-robust-remarkably.ngrok-free.app/static/card/{uid}.png"
+                            original_content_url=f"https://test-linebot.hsuan.app/static/card/{uid}.png",
+                            preview_image_url=f"https://test-linebot.hsuan.app/static/card/{uid}.png"
                         ),
                         ImageMessage(
-                            original_content_url=f"https://sloth-robust-remarkably.ngrok-free.app/static/card/{uid}_qr.png",
-                            preview_image_url=f"https://sloth-robust-remarkably.ngrok-free.app/static/card/{uid}_qr.png"
+                            original_content_url=f"https://test-linebot.hsuan.app/static/card/{uid}_qr.png",
+                            preview_image_url=f"https://test-linebot.hsuan.app/static/card/{uid}_qr.png"
                         )
                     ]
                 )
@@ -242,14 +242,14 @@ def item_create():
     items.append({
         "id": item_id,
         "name": request.form["name"],
-        "image": f"https://sloth-robust-remarkably.ngrok-free.app/static/item/{item_id}.png",
+        "image": f"https://test-linebot.hsuan.app/static/item/{item_id}.png",
         "price": request.form["price"],
     })
 
     with open("static/item.json", "w") as f:
         json.dump(items, f)
 
-    return redirect("https://sloth-robust-remarkably.ngrok-free.app/admin/items")
+    return redirect("https://test-linebot.hsuan.app/admin/items")
 
 
 @app.get('/api/points')
