@@ -127,7 +127,7 @@ def gen_member_card(name, uid):
 
     avatar_path = f"static/avatar/{uid}.jpeg"
     if os.path.exists(avatar_path):
-        avatar = Image.open(f"static/avatar/{uid}.jpeg")
+        avatar = Image.open(f"static/avatar/{uid}")
         base_width = 800
         wpercent = (base_width / float(avatar.size[0]))
         hsize = int((float(avatar.size[1]) * float(wpercent)))
