@@ -12,31 +12,25 @@
 <body>
 
 <div>
-    <a
-            class="rounded-md bg-indigo-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-            href="/admin/items">商品管理</a>
+    <a class="rounded-b-md bg-indigo-600 mx-2 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+       href="/admin/items">商品管理</a>
+
+    <a class="rounded-b-md bg-green-600 mx-2 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-green-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600"
+       href="/admin">訂單管理</a>
 
     <div class="border-b border-gray-200 bg-white px-4 py-5 sm:px-6">
         <h3 class="text-base font-semibold leading-6 text-gray-900">訂單管理</h3>
 
-        <div class="flex">
-            <div class="item_container">
-                <select onchange="render()"
-                        class="item relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 sm:text-sm sm:leading-6"></select>
-                <select onchange="render()" class="price">
-                    <option>1</option>
-                    <option>2</option>
-                    <option>3</option>
-                    <option>4</option>
-                    <option>5</option>
-                    <option>6</option>
-                    <option>7</option>
-                    <option>8</option>
-                    <option>9</option>
-                    <option>10</option>
-                </select>
-            </div>
-        </div>
+        <div class="flex my-2" id="item_list_container"></div>
+
+        <button
+                type="button"
+                id="addItem"
+                onclick="addItem()"
+                class="rounded-md bg-indigo-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+        >
+            新增品項
+        </button>
 
 
         <button
@@ -48,22 +42,38 @@
         </button>
 
         <div class="border rounded-lg p-2 my-2">
-            <span>ID: <span id="userId"></span></span>
+            <span class="flex justify-between">ID: <span id="userId"></span></span>
             <div class="flex flex-col">
                 <span>品項明細</span>
-                <ul id="detail">
+                <ul id="detail" class="border border-dotted p-2 my-2">
 
                 </ul>
+                <span class="flex justify-between">
+                    <span>總金額: </span>
+                    <span id="total">$</span>
+                </span>
+                <span class="flex justify-between">
+                    <span>積點: </span>
+                    <span id="point"></span>
+                </span>
             </div>
+            <code id="result"></code>
+            <button class="rounded-md w-full bg-indigo-600 mt-2 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                    onclick="submitOrder()">確認訂單
+            </button>
         </div>
     </div>
 
+    <div>
+        <div class="flex flex-col" id="order_list"></div>
+    </div>
 </div>
 
 <script>
     let userId = null;
     let items = []
     let preItems = []
+
     document.addEventListener("DOMContentLoaded", () => {
         liff.init({liffId: "2001486622-zXegw9Z4"}).then(() => {
             if (liff.isLoggedIn()) {
@@ -73,9 +83,43 @@
             }
         });
 
-        fetch("/api/admin/items").then(res => res.json()).then((items, i) => {
-            preItems = items;
+        fetch("/api/admin/items").then(res => res.json()).then((_items, i) => {
+            preItems = _items;
+            items = [{
+                id: preItems[0].id,
+                qty: 1
+            }];
             render()
+        })
+
+        fetch("/api/admin/orders").then(res => res.json()).then(orders => {
+            document.querySelector('#order_list').innerHTML = '';
+            orders.forEach(order => {
+                let li = `
+                    <div class="border rounded-lg p-2 m-4">
+                        <span class="flex justify-between">ID: <span>${order.user_id}</span></span>
+                        <div class="flex flex-col">
+                            <span>品項明細</span>
+                            <ul class="border border-dotted p-2 my-2">
+                                ${order.items.map(item => {
+                                    return `<li class="flex justify-between items-center">
+                                        <span>${item.name}</span>
+                                        <span>
+                                            <span>$${item.price}</span>
+                                            <span>x${item.qty}</span>
+                                        </span>
+                                    </li>`
+                                }).join('')}
+                            </ul>
+                            <span class="flex justify-between">
+                                <span>總金額: </span>
+                                <span>$${order.total}</span>
+                            </span>
+                        </div>
+                    </div>
+                `
+                document.querySelector('#order_list').innerHTML += li;
+            })
         })
     })
 
@@ -86,33 +130,124 @@
         });
     });
 
-    function render() {
-        document.querySelector('#detail').innerHTML = '';
-
-        document.querySelectorAll('.item').innerHTML = '';
-        preItems.forEach(item => {
-            let option = `<option value="${item.name}">${item.name}</option>`
-            document.querySelectorAll('.item').forEach(item => {
-                item.innerHTML += option;
-            })
+    function addItem() {
+        items.push({
+            id: preItems[0].id,
+            qty: 1
         })
+        render()
+    }
 
-        document.querySelectorAll('.item_container').forEach((item_container) => {
-            let item = item_container.querySelector('.item').value;
-            let price = item_container.querySelector('.price').value;
-            items.push({name: item, price: price})
+    function onChange(e) {
+        const idx = e.dataset.idx;
+        const type = e.dataset.type; // id or qty
+        const value = e.value;
+        console.log(idx, type, value)
+        if (type === 'id') {
+            items[idx].id = value;
+        } else if (type === 'qty') {
+            items[idx].qty = value;
+        }
+        render()
+    }
+
+    function render() {
+        if (preItems.length === 0) return;
+
+        // 這裡確保 render 的時候，邏輯資料是正確的 （不採納使用者的輸入）
+        document.querySelector('#detail').innerHTML = '';
+        document.querySelector('#item_list_container').innerHTML = '';
+
+        if (items.length === 0) {
+            // 預設一個
+            items = [{
+                id: preItems[0].id,
+                qty: 1
+            }];
+        }
+
+        items.forEach((item, i) => {
+            const options = preItems.map(p_item => {
+                if (p_item.id === item.id) {
+                    return `<option value="${p_item.id}"  selected>${p_item.name}</option>`
+                } else {
+                    return `<option value="${p_item.id}" >${p_item.name}</option>`
+                }
+            })
+            const qties = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(qty => {
+                if (qty === item.qty) {
+                    return `<option value="${qty}"  selected>${qty}</option>`
+                } else {
+                    return `<option value="${qty}" >${qty}</option>`
+                }
+            })
+            let item_container = `
+                <div class="item_container flex justify-between w-full">
+                    <select onchange="onChange(this)"
+                            data-idx="${i}"
+                            data-type="id"
+                            class="id relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 sm:text-sm sm:leading-6">
+                        ${options}
+                    </select>
+                    <select onchange="onChange(this)" data-idx="${i}" data-type="qty"
+                            class="qty relative w-3/10 cursor-default rounded-md bg-white py-1.5 pl-3 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 sm:text-sm sm:leading-6">
+                        >
+                        ${qties}
+                    </select>
+                </div>
+            `
+            document.querySelector('#item_list_container').innerHTML += item_container;
         })
 
         items.forEach(item => {
+            const real_item = preItems.find(p_item => p_item.id === item.id);
             let li = `
                     <li class="flex justify-between items-center">
-                        <span>${item.name}</span>
-                        <span>${item.price}</span>
+                        <span>${real_item.name}</span>
+                        <span>
+                            <span>$${real_item.price}</span>
+                            <span>x${item.qty}</span>
+                        </span>
                     </li>`
             document.getElementById("detail").innerHTML += li;
         })
         document.getElementById("userId").innerText = userId;
+        document.getElementById("total").innerText = '$' + items.reduce((acc, item) => {
+            const real_item = preItems.find(p_item => p_item.id === item.id);
+            return acc + real_item.price * item.qty;
+        }, 0);
+        document.getElementById("point").innerText = Math.floor((items.reduce((acc, item) => {
+            const real_item = preItems.find(p_item => p_item.id === item.id);
+            return acc + real_item.price * item.qty;
+        }, 0)) * 0.05) + ' 點 (5%回饋)';
+        {#document.getElementById("result").innerText = JSON.stringify(items);#}
+    }
 
+    function submitOrder() {
+        if (!userId) {
+            alert('請先掃描顧客 QR');
+            return;
+        }
+
+        if (confirm('確認送出訂單?')) {
+            fetch('/api/admin/orders', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    userId,
+                    items,
+                    total: items.reduce((acc, item) => {
+                        const real_item = preItems.find(p_item => p_item.id === item.id);
+                        return acc + real_item.price * item.qty;
+                    }, 0)
+                })
+            }).then(res => res.json()).then(res => {
+                alert('訂單已送出');
+                window.location.reload();
+            })
+        }
     }
 </script>
 

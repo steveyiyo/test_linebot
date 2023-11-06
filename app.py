@@ -1,5 +1,6 @@
 import json
 import os
+from math import floor
 
 import qrcode
 from PIL import Image, ImageFont
@@ -160,6 +161,70 @@ def item_api_index():
     return jsonify(items)
 
 
+@app.post('/api/admin/orders')
+def order_api_create():
+    if not os.path.exists("static/order.json"):
+        with open("static/order.json", "w") as f:
+            f.write("[]")
+
+    if not os.path.exists("static/point.json"):
+        with open("static/point.json", "w") as f:
+            f.write("[]")
+
+    orders = json.load(open("static/order.json"))
+    points = json.load(open("static/point.json"))
+
+    order_id = str(uuid4())
+    orders.append({
+        "id": order_id,
+        "user_id": request.json["userId"],
+        "items": request.json["items"],
+        "total": request.json["total"],
+    })
+
+    point_record_id = str(uuid4())
+    points.append({
+        "id": point_record_id,
+        "user_id": request.json["userId"],
+        "description": f"消費 {request.json['total']} 元，獲得 {floor(request.json['total'] / 10)} 點",
+        "order_id": order_id,
+        "point": floor(request.json["total"] / 10),
+    })
+
+    with open("static/order.json", "w") as f:
+        json.dump(orders, f)
+
+    with open("static/point.json", "w") as f:
+        json.dump(points, f)
+
+    return jsonify(orders)
+
+
+@app.get('/api/admin/orders')
+def order_api_index():
+    if not os.path.exists("static/order.json"):
+        with open("static/order.json", "w") as f:
+            f.write("[]")
+
+    orders = json.load(open("static/order.json"))
+    items = json.load(open("static/item.json"))
+
+    # inner join name, price
+    for order in orders:
+        order["items"] = list(map(lambda x: {
+            "id": x["id"],
+            "qty": x["qty"],
+            "name": filter(lambda z: z["id"] == x["id"], items).__next__()["name"],
+            "price": filter(lambda z: z["id"] == x["id"], items).__next__()["price"],
+        }, order["items"]))
+
+    # for order in orders:
+    #     order["items"] = json.load(open("static/item.json"))
+    #     order["items"] = list(filter(lambda x: x["id"] in order["items"], order["items"]))
+
+    return jsonify(orders)
+
+
 @app.post('/admin/items')
 def item_create():
     if not os.path.exists("static/item.json"):
@@ -182,22 +247,6 @@ def item_create():
         json.dump(items, f)
 
     return redirect("https://sloth-robust-remarkably.ngrok-free.app/admin/items")
-
-
-@app.post('/order')
-def order_create():
-    if not os.path.exists("static/order.json"):
-        with open("static/order.json", "w") as f:
-            f.write("[]")
-
-    orders = json.load(open("static/order.json"))
-
-    order_id = str(uuid4())
-    orders.append({
-        "id": order_id,
-        "items": request.json["items"],
-        "total": request.json["total"],
-    })
 
 
 @app.get('/')

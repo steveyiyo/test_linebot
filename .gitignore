@@ -4,3 +4,6 @@ venv
 static/card/*
 static/avatar/*
 static/item/*
+static/order.json
+static/point.json
+static/item.json
