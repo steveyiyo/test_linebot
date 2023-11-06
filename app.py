@@ -40,6 +40,7 @@ configuration = Configuration(access_token=os.environ.get('LINE_CHANNEL_ACCESS_T
 handler = WebhookHandler(os.environ.get('LINE_CHANNEL_SECRET'))
 register_heif_opener()
 
+
 @app.route("/callback", methods=['POST'])
 def callback():
     # get X-Line-Signature header value
@@ -129,11 +130,13 @@ def gen_member_card(name, uid):
     avatar_path = f"static/avatar/{uid}"
     if os.path.exists(avatar_path):
         avatar = Image.open(f"static/avatar/{uid}")
-        base_width = 800
-        wpercent = (base_width / float(avatar.size[0]))
-        hsize = int((float(avatar.size[1]) * float(wpercent)))
-        avatar = avatar.resize((800, hsize))
-        img.paste(avatar, (300, 600))
+    else:
+        avatar = Image.open("static/avatar/default.png")
+    base_width = 800
+    wpercent = (base_width / float(avatar.size[0]))
+    hsize = int((float(avatar.size[1]) * float(wpercent)))
+    avatar = avatar.resize((800, hsize))
+    img.paste(avatar, (300, 600))
 
     # Call draw Method to add 2D graphics in an image
     I1 = ImageDraw.Draw(img)

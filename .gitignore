@@ -2,8 +2,8 @@
 venv
 .env
 static/card/*
-!static/avatar/default.png
 static/avatar/*
+!static/avatar/default.png
 static/item/*
 static/order.json
 static/point.json
