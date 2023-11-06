@@ -92,10 +92,25 @@ def handle_postback(event):
     with ApiClient(configuration) as api_client:
         line_bot_api = MessagingApi(api_client)
         if event.postback.data == 'action=member_card':
-            print(event.source)
-            name = "王小明"
-            uid = event.source.user_id
-            gen_member_card(name, uid)
+            if os.path.exists('static/users.json'):
+                users = json.load(open('static/users.json'))
+            else:
+                users = []
+
+            userId = event.source.user_id
+            user_info = list(filter(lambda x: x["id"] == userId, users))
+
+            if len(user_info) == 0:
+                user_info = {
+                    "id": userId,
+                    "name": "未提供",
+                }
+                users.append(user_info)
+                with open("static/users.json", "w") as f:
+                    json.dump(users, f)
+            else:
+                user_info = user_info[0]
+            gen_member_card(user_info["name"], userId)
 
             line_bot_api.reply_message_with_http_info(
                 ReplyMessageRequest(
@@ -288,6 +303,12 @@ def upload_avatar():
     if not os.path.exists("static/avatar"):
         os.makedirs("static/avatar")
 
+    if not os.path.exists("static/users.json"):
+        with open("static/users.json", "w") as f:
+            f.write("[]")
+
+    users = json.load(open("static/users.json"))
+
     userId = request.form.get('token')
     user_info = requests.post("https://api.line.me/oauth2/v2.1/verify", data={
         "id_token": userId,
@@ -296,8 +317,20 @@ def upload_avatar():
     print(user_info)
     userId = user_info["sub"]
 
-    request.files["avatar"].save(f"static/avatar/{userId}")
+    user_db = list(filter(lambda x: x["id"] == userId, users))
+    if len(user_db) == 0:
+        user_info = {
+            "id": userId,
+            "name": user_info["name"],
+        }
+        users.append(user_info)
+        with open("static/users.json", "w") as f:
+            json.dump(users, f)
+    else:
+        user_info = user_db[0]
 
+    request.files["avatar"].save(f"static/avatar/{userId}")
+    gen_member_card(user_info["name"], userId)
     return redirect("https://test-linebot.hsuan.app/")
 
 
