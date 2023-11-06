@@ -3,7 +3,7 @@
 <head>
     <title>LIFF Restaurant</title>
     <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/versions/2.22.4/sdk.js"></script>
-
+    <link href="/static/logo.png" rel="icon" type="image/png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -12,13 +12,24 @@
 <body>
 
 <div>
-    <button
-        type="button"
-         id="qr"
-        class="rounded-md bg-indigo-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-      >
-        QR
-      </button>
+    <div class="w-full px-4">
+        <img id="card" class="w-full rounded-xl shadow-2xl"/>
+    </div>
+    <div class="flex justify-center gap-2 mt-4">
+        <button class="bg-orange-400 text-white font-bold rounded-xl p-2 btn_tab" data-show="qr">會員 QR Code</button>
+        <button class="border-4 border-orange-400 text-orange-400 font-bold rounded-xl p-2 btn_tab" data-show="point">
+            點數紀錄
+        </button>
+    </div>
+    <div class="flex flex-col items-center border m-4 rounded-lg p-2" id="qr_container">
+        <img id="qr" class="w-1/2"/>
+        <img id="barcode" class="w-1/2"/>
+    </div>
+    <div id="point_container" class="hidden m-4">
+        <ul id="points" class="px-2">
+
+        </ul>
+    </div>
 </div>
 
 <script>
@@ -26,18 +37,46 @@
         liff.init({liffId: "2001486622-g5oK1pGe"}).then(() => {
             if (liff.isLoggedIn()) {
                 console.log("LIFF is logged in");
+                liff.getProfile().then(user => {
+                    document.getElementById("card").src = "/static/card/" + user.userId + ".png";
+                    document.getElementById("qr").src = "/static/card/" + user.userId + "_qr.png";
+                    document.getElementById("barcode").src = "/static/card/" + user.userId + "_barcode.png";
+                })
+                fetch('/api/points', {
+                    headers: {
+                        'Authorization': 'Bearer ' + liff.getIDToken()
+                    }
+                }).then(res=>res.json()).then(points=>{
+                    document.getElementById('points').innerHTML = points.map(x=>`
+                        <li class="flex flex-col justify-between w-full border rounded-xl p-2">
+                            <span class="flex justify-between items-center">
+                                <span>${new Date(x.created_at).toLocaleDateString()}</span>
+                                <span class="font-bold text-2xl">${x.point}點</span>
+                            </span>
+                            <span>${x.description}</span>
+                        </li>
+                    `).join('');
+                })
             } else {
                 liff.login();
             }
         });
+        document.querySelectorAll('.btn_tab').forEach(x => x.addEventListener('click', (e) => {
+            document.querySelectorAll('.btn_tab').forEach((el) => {
+                el.classList.remove('bg-orange-400', 'text-white');
+                el.classList.add('border-4', 'border-orange-400', 'text-orange-400');
+            });
+            e.target.classList.remove('border-4', 'border-orange-400', 'text-orange-400');
+            e.target.classList.add('bg-orange-400', 'text-white');
+            if (e.target.dataset.show === 'qr') {
+                document.getElementById('qr_container').classList.remove('hidden');
+                document.getElementById('point_container').classList.add('hidden');
+            } else {
+                document.getElementById('qr_container').classList.add('hidden');
+                document.getElementById('point_container').classList.remove('hidden');
+            }
+        }))
     })
-
-    document.querySelector("#qr").addEventListener("click", function () {
-        liff.scanCodeV2().then(result => {
-            const stringifiedResult = JSON.stringify(result);
-            alert(stringifiedResult);
-        });
-    });
 </script>
 
 </body>

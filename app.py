@@ -3,6 +3,7 @@ import os
 from math import floor
 
 import qrcode
+import requests
 from PIL import Image, ImageFont
 from PIL import ImageDraw
 from uuid import uuid4
@@ -12,6 +13,7 @@ from barcode.writer import ImageWriter  # 載入 barcode.writer 的 ImageWriter
 
 from flask import Flask, request, abort, render_template, jsonify, redirect
 from dotenv import load_dotenv
+from future.backports.datetime import datetime
 from linebot.v3 import (
     WebhookHandler
 )
@@ -189,6 +191,7 @@ def order_api_create():
         "description": f"消費 {request.json['total']} 元，獲得 {floor(request.json['total'] / 10)} 點",
         "order_id": order_id,
         "point": floor(request.json["total"] / 10),
+        "created_at": datetime.now().isoformat(),
     })
 
     with open("static/order.json", "w") as f:
@@ -247,6 +250,28 @@ def item_create():
         json.dump(items, f)
 
     return redirect("https://sloth-robust-remarkably.ngrok-free.app/admin/items")
+
+
+@app.get('/api/points')
+def point_index():
+    if not os.path.exists("static/point.json"):
+        with open("static/point.json", "w") as f:
+            f.write("[]")
+
+    points = json.load(open("static/point.json"))
+
+    userId = request.headers.get("Authorization")
+    userId = userId.replace("Bearer ", "")
+    user_info = requests.post("https://api.line.me/oauth2/v2.1/verify", data={
+        "id_token": userId,
+        "client_id": os.environ.get("LINE_CHANNEL_ID"),
+    }).json()
+    print(user_info)
+    userId = user_info["sub"]
+
+    points = list(filter(lambda x: x["user_id"] == userId, points))
+
+    return jsonify(points)
 
 
 @app.get('/')
