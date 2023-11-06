@@ -283,7 +283,12 @@ def point_index():
         with open("static/point.json", "w") as f:
             f.write("[]")
 
+    if not os.path.exists("static/users.json"):
+        with open("static/users.json", "w") as f:
+            f.write("[]")
+
     points = json.load(open("static/point.json"))
+    users = json.load(open("static/users.json"))
 
     userId = request.headers.get("Authorization")
     userId = userId.replace("Bearer ", "")
@@ -291,8 +296,16 @@ def point_index():
         "id_token": userId,
         "client_id": os.environ.get("LINE_CHANNEL_ID"),
     }).json()
-    print(user_info)
     userId = user_info["sub"]
+
+    user_db_info = list(filter(lambda x: x["id"] == userId, users))
+    if len(user_db_info) == 0:
+        users.append({
+            "id": userId,
+            "name": user_info["name"],
+        })
+        with open("static/users.json", "w") as f:
+            json.dump(users, f)
 
     points = list(filter(lambda x: x["user_id"] == userId, points))
 
