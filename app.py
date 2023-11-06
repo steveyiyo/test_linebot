@@ -31,13 +31,14 @@ from linebot.v3.webhooks import (
     MessageEvent,
     TextMessageContent, PostbackEvent
 )
+from pillow_heif import register_heif_opener
 
 app = Flask(__name__, static_folder='static')
 load_dotenv()
 
 configuration = Configuration(access_token=os.environ.get('LINE_CHANNEL_ACCESS_TOKEN'))
 handler = WebhookHandler(os.environ.get('LINE_CHANNEL_SECRET'))
-
+register_heif_opener()
 
 @app.route("/callback", methods=['POST'])
 def callback():
