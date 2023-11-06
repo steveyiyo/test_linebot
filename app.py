@@ -296,7 +296,7 @@ def upload_avatar():
     print(user_info)
     userId = user_info["sub"]
 
-    request.files["avatar"].save(f"static/avatar/{userId}.jpeg")
+    request.files["avatar"].save(f"static/avatar/{userId}")
 
     return redirect("https://test-linebot.hsuan.app/")
 
