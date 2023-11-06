@@ -20,7 +20,7 @@
             <label for="avatar"
                    class="w-full flex justify-center items-center bg-orange-400 text-white rounded-xl shadow-2xl cursor-pointer">
                 <span class="text-2xl">更換頭像</span>
-                <input id="avatar" type="file" name="avatar" class="hidden" accept="image/jpeg"
+                <input id="avatar" type="file" name="avatar" class="hidden" accept="image/*"
                        onchange="avatarChange()"/>
             </label>
             <input type="hidden" id="token" name="token"/>
@@ -38,7 +38,7 @@
             if (liff.isLoggedIn()) {
                 console.log("LIFF is logged in");
                 liff.getProfile().then(user => {
-                    document.getElementById("avatar_img").src = "/static/avatar/" + user.userId + ".jpeg";
+                    document.getElementById("avatar_img").src = "/static/avatar/" + user.userId;
                 })
                 document.getElementById("token").value = liff.getIDToken();
             } else {
