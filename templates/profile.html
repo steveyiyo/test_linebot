@@ -16,11 +16,11 @@
         <img id="avatar_img" class="w-full rounded-xl shadow-2xl"/>
     </div>
     <div class="my-4">
-        <form action="/profile/avatar" method="post" enctype="multipart/form-data">
+        <form action="/profile/avatar" method="post" id="avatar_form" enctype="multipart/form-data">
             <label for="avatar"
                    class="w-full flex justify-center items-center bg-orange-400 text-white rounded-xl shadow-2xl cursor-pointer">
                 <span class="text-2xl">更換頭像</span>
-                <input id="avatar" type="file" class="hidden" accept="image/*"/>
+                <input id="avatar" type="file" name="avatar" class="hidden" accept="image/*" onchange="avatarChange"/>
             </label>
             <input type="hidden" id="token"/>
         </form>
@@ -28,6 +28,10 @@
 </div>
 
 <script>
+    function avatarChange() {
+        document.getElementById("avatar_form").submit();
+    }
+
     document.addEventListener("DOMContentLoaded", () => {
         liff.init({liffId: "2001486622-g5oK1pGe"}).then(() => {
             if (liff.isLoggedIn()) {

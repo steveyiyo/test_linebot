@@ -11,7 +11,7 @@ from uuid import uuid4
 from barcode import EAN13, Code128
 from barcode.writer import ImageWriter  # 載入 barcode.writer 的 ImageWriter
 
-from flask import Flask, request, abort, render_template, jsonify, redirect
+from flask import Flask, request, abort, render_template, jsonify, redirect, url_for
 from dotenv import load_dotenv
 from future.backports.datetime import datetime
 from linebot.v3 import (
@@ -292,11 +292,9 @@ def upload_avatar():
     print(user_info)
     userId = user_info["sub"]
 
-    request.files["image"].save(f"static/avatar/{userId}")
+    request.files["avatar"].save(f"static/avatar/{userId}")
 
-    return jsonify({
-        "status": "success"
-    })
+    return redirect("https://test-linebot.hsuan.app/")
 
 
 @app.get('/')
