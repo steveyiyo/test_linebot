@@ -86,6 +86,7 @@ def handle_message(event):
                         )
                     ),
                     FlexMessage(
+                        alt_text='功能表',
                         contents=FlexCarousel.from_json(flex)
                     )
                 ]
