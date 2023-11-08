@@ -85,7 +85,9 @@ def handle_message(event):
                             ]
                         )
                     ),
-                    FlexCarousel.from_json(flex)
+                    FlexMessage(
+                        contents=FlexCarousel.from_json(flex)
+                    )
                 ]
             )
         )
