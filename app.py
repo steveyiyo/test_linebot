@@ -25,13 +25,15 @@ from linebot.v3.messaging import (
     ApiClient,
     MessagingApi,
     ReplyMessageRequest,
-    TextMessage, TemplateMessage, ButtonsTemplate, MessageAction, URIAction, ImageMessage, PostbackAction
+    TextMessage, TemplateMessage, ButtonsTemplate, MessageAction, URIAction, ImageMessage, PostbackAction, FlexMessage
 )
 from linebot.v3.webhooks import (
     MessageEvent,
     TextMessageContent, PostbackEvent
 )
 from pillow_heif import register_heif_opener
+
+from template import flex
 
 app = Flask(__name__, static_folder='static')
 load_dotenv()
@@ -81,7 +83,8 @@ def handle_message(event):
                                 ),
                             ]
                         )
-                    )
+                    ),
+                    FlexMessage.from_json(flex)
                 ]
             )
         )
