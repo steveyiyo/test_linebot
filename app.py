@@ -25,7 +25,8 @@ from linebot.v3.messaging import (
     ApiClient,
     MessagingApi,
     ReplyMessageRequest,
-    TextMessage, TemplateMessage, ButtonsTemplate, MessageAction, URIAction, ImageMessage, PostbackAction, FlexMessage
+    TextMessage, TemplateMessage, ButtonsTemplate, MessageAction, URIAction, ImageMessage, PostbackAction, FlexMessage,
+    FlexCarousel
 )
 from linebot.v3.webhooks import (
     MessageEvent,
@@ -84,7 +85,7 @@ def handle_message(event):
                             ]
                         )
                     ),
-                    FlexMessage.from_json(flex)
+                    FlexCarousel.from_json(flex)
                 ]
             )
         )
